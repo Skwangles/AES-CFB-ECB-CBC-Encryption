@@ -3,6 +3,7 @@ from PIL import Image
 import numpy as np
 from Crypto.Util import Padding
 from Crypto.Cipher import AES
+from Crypto.Random import get_random_bytes
 import argparse
 
 parser = argparse.ArgumentParser(prog="AES Image Encrypted",
@@ -37,20 +38,24 @@ def image_encrypt(img_path, hex_key, aes_type, output_filename):
         return
     
     # Determine and choose correct AES mode - padding the data as needed
-    aes_mode = None
+    aes = None
+    iv = None
     match aes_type:
         case "cbc":
-            aes_mode = AES.MODE_CBC
             img = Padding.pad(img, 16)
+            iv = get_random_bytes(AES.block_size)
+            print("Generated IV:", iv)
+            aes = AES.new(key, AES.MODE_CBC, iv=iv)
         case "cfb":
-            aes_mode = AES.MODE_CFB
+            iv = get_random_bytes(AES.block_size)
+            print("Generated IV:", iv)
+            aes = AES.new(key, AES.MODE_CFB, iv=iv)
         case "ecb":
-            aes_mode = AES.MODE_ECB
             img = Padding.pad(img, 16)
+            aes = AES.new(key, AES.MODE_ECB)
         case _:
             print("Invalid supported AES type (cbc, cfb, ecb):", aes_type)
             return
-    aes = AES.new(key, aes_mode)
     if not aes:
         print("AES failed to initalise - please check your parameters")
         return
