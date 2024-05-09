@@ -85,7 +85,7 @@ def output_binary_img(img, size, save_path="encrypted-img.jpg"):
     """
     Convert binary data to image body, and save
     """
-    output_img = Image.frombuffer("L", size, img)
+    output_img = Image.frombytes("L", size, img)
     output_img.save(save_path)
 
 if __name__ == "__main__":
