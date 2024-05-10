@@ -33,7 +33,7 @@ def image_encrypt(img_path, hex_key, aes_type, output_filename):
         print("Must supply an image")
         return
     img, size = image_load(img_path)
-    if not img:
+    if not img or len(img) == 0:
         print("Invalid image provided")
         return
     
@@ -71,21 +71,18 @@ def image_load(filepath="./Image-Assignment2.bmp"):
     """
     img_size = None
     try:
-        img_size = Image.open(filepath).size
-    except:
+        img = Image.open(filepath)
+        img_size = img.size
+        return np.asarray(img).flatten().tobytes(), img_size
+    except FileNotFoundError:
         return None, None
-
-    file_obj = open(filepath, 'rb')
-    bin_data = file_obj.read()
-    file_obj.close()
-    return bin_data, img_size
 
 
 def output_binary_img(img, size, save_path="encrypted-img.jpg"):
     """
     Convert binary data to image body, and save
     """
-    output_img = Image.frombytes("L", size, img)
+    output_img = Image.frombytes("RGB", size, img)
     output_img.save(save_path)
 
 if __name__ == "__main__":
